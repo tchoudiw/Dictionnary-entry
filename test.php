@@ -1,7 +1,7 @@
 <?php
 
 	
-   $json = file_get_contents("dico.json");  
+   $json = file_get_contents("dictionnairejson.json");  
 
     //convert json object to php associative array
     
