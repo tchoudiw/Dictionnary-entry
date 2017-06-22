@@ -19,7 +19,7 @@
 		 	}
 
 
-		   	$json = file_get_contents("dico.json");  
+		   	$json = file_get_contents("dictionnairJson.json");  
 
 		    //convert json object to php associative array
 		    
