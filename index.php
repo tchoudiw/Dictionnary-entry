@@ -3,57 +3,105 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	</head>
 		<?php
-
 			
-		   $json = file_get_contents("dico.json");  
+			function connectDb(){
+		    	$host="localhost"; // ou sql.hebergeur.com
+		      	$user="root";      // ou login
+		      	$password="";      // ou xxxxxx
+		      	$dbname="dictionnaire";
+		  		try {
+		       			$bdd=new PDO('mysql:host='.$host.';dbname='.$dbname.';charset=utf8',$user,$password);
+		       			return $bdd;
+		      		} catch (Exception $e)
+		      	{
+		       	die('Erreur : '.$e->getMessage());
+		  		}
+		 	}
+
+
+		   	$json = file_get_contents("dico.json");  
 
 		    //convert json object to php associative array
 		    
 			// var_dump(json_decode($json, true));
 			$parsed_json = json_decode($json,true);
-			
-			$serveur = "localhost";
-			$base = "dictionnaire";
-			$user = "root";
-			$pass = "";
 
-			/*
-			$mysqli est une nouvelle instance de la classe mysqli
-			prédéfinie dans php et hérite donc de ses propriétés et méthodes
-			connexion à la base de données
-			*/
-			$mysqli = new mysqli($serveur, $user, $pass, $base);
-			// si la connexion se fait en UTF-8, sinon ne rien indiquer
-			$mysqli->set_charset("utf8");
-			/*
-			utilisation de la méthode connect_error
-			qui renvoie un message d'erreur si la connexion échoue
-			*/
-			if ($mysqli->connect_error) {
-			    die('Erreur de connexion ('.$mysqli->connect_errno.')'. $mysqli->connect_error);
+
+			// les données sont inséré dans l'ordre d'apparition dans la base de donné
+
+			//insere les données dans la table entry de la base dictionnaire
+			function insertion_entry($n,$o,$p)
+			{
+			$bdd = connectDb();
+				$query = $bdd->prepare("insert 
+										into entry(idData, word, nature)
+										value (
+											'$n',
+											'$o',
+											'$p'
+												)
+										");
+				$query->execute();
 			}
-			
-			function insertion($valeur)
 
+			//insere les données dans la table cita de la base dictionnaire
+			function insertion_cita($f,$g,$h,$i,$j,$k,$l,$m)
+			{
+			$bdd = connectDb();
+				$query = $bdd->prepare("insert 
+										into cita(idCita, idData, trans, cf, syn, anto, hom, NB)
+										value (
+											'$f',
+											'$g',
+											'$h',
+											'$i',
+											'$j',
+											'$k',
+											'$l',
+											'$m'
+												)
+										");
+				$query->execute();
+			}
+
+			//insere les données dans la table block de la base dictionnaire
+			function insertion_block($a,$b,$c,$d,$e)
+			{
+			$bdd = connectDb();
+				$query = $bdd->prepare("insert 
+										into block(idBlock, idCita, lang, fran, genre)
+										value (
+											'$a',
+											'$b',
+											'$c',
+											'$d',
+											'$e'
+												)
+										");
+				$query->execute();
+			}
+
+			
 			foreach ($parsed_json['dictionnaire']['entry'] as $i) //
 			{
-				foreach($i as $cita) //
+				
+				foreach($i as $cit=>$cita) //
 				{
-					echo $cita;
-					foreach($cita as $block) //
+					insertion_entry($i['_idData'],$i['word'],$i['nature']);
+					foreach($cita as $blo=>$bloc) //
 					{
-						echo $block;
-						foreach($block as $j) //
+						insertion_cita($cita['_idCita'],$cita['_idDataFo'],$cita['trans'],$cita['cf'],$cita['syn'],$cita['anto'],$cita['hom'],$cita['NB']);
+						foreach($bloc as $j) //
 						{
-							foreach($j as $value) //inserer $value
-							{
-								echo $value.'<br>';
-							}
+							//envoie des données a inserer a la fonction insertion
+							insertion_block($j['_idBlock'],$j['_idCitaFo'],$j['lang'],$j['fran'],$j['_genre']);
+
 							echo '<br><br>';
-								
 						}
 					}
 				}
 			}
+
+
 		?>
 </html>
